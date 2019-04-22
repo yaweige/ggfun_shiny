@@ -42,7 +42,7 @@ ui <- fluidPage(
                )
              ),
              
-             tabPanel("geom_star",
+             tabPanel("stat_star",
                       sidebarLayout(
                         sidebarPanel(
                           sliderInput("datasize", "Data size",
@@ -91,7 +91,7 @@ ui <- fluidPage(
                                   value = ""),
                         verbatimTextOutput("text"),
                         radioButtons("arrowtype", "Arrow type",
-                                     choices = list("close" = "closed", open = "open"),
+                                     choices = list("closed" = "closed", open = "open"),
                                      selected = "open"),
                         conditionalPanel("input.arrowtype === 'closed'",
                                          selectInput("arrowfill", "Arrow head fill color",
