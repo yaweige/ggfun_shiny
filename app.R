@@ -114,7 +114,25 @@ ui <- fluidPage(
                                    "ggplot(certain_data) + geom_path(aes(long, lat, group)) +
                                     stat_arrowmap(aes(long, lat, change, group))")
                         )
+                      )),
+             
+             tabPanel("layer_PersHomo",
+                      sidebarLayout(
+                        sidebarPanel(
+                          sliderInput("eqDate", "Set a Time Range of observation in AD", min = -70, max = 2019, value = c(-70,2019)),
+                          sliderInput("MAG", "Set minimum Magnitude of earthquake in M", min = 0, max = 15, value = 0),
+                          sliderInput("d", "Set the Persistent Homology Radius in km", min = 0, max = 1000000, value = 150000)
+                          ),
+                        
+                        # Show a plot of the generated world map with linkage
+                        mainPanel(
+                          plotOutput("PersHomoMap"),
+                          helpText("Example code:",
+                                   "ggplot(worldMap) + layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = 'blue') +
+                                   geom_point()")
+                        )
                       ))
+             
   )
   # Sidebar with a slider input for number of bins 
   
@@ -158,8 +176,39 @@ server <- function(input, output) {
                     arrow = arrow(type = input$arrowtype,
                                   length = unit(input$arrowlength, "inches")))
   })
-  output$text <- renderPrint({input$saysomething})
-}
+  
+  url <- "https://www.ngdc.noaa.gov/nndc/struts/results?type_0=Exact&query_0=$ID&t=101650&s=13&d=189&dfn=signif.txt"
+  eq.raw <- read.delim(url, as.is=T) %>%
+    filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
+    filter(LONGITUDE > 110 | LONGITUDE < -45) %>%  
+    mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>%
+    select(YEAR, MONTH,DAY, EQ_MAG_MS, COUNTRY, LOCATION_NAME, LATITUDE, LONGITUDE)
+  
+  output$PersHomoMap <- renderPlot({
+    eq <- eq.raw %>% 
+      filter(EQ_MAG_MS > input$MAG) %>% 
+      filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
+    ## plot base map
+    worldmap <- map_data("world2")
+    p <- ggplot() +
+      geom_polygon(data=worldmap, aes(x=long, y=lat, group = group),fill="white", colour="#7f7f7f", size=0.5) +
+      ggtitle("Earthquake around Pacific Plate") +
+      theme(axis.line=element_blank(),
+            axis.text.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks=element_blank(),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position="none",
+            panel.background=element_blank(),
+            panel.border=element_blank(),
+            panel.grid.major=element_blank(),
+            panel.grid.minor=element_blank(),
+            plot.background=element_blank()); p
+    ## add layer_PersHomo
+    fp <- p + layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue") +
+      geom_point(); fp
+  })}
 
 # Run the application 
 shinyApp(ui = ui, server = server)
