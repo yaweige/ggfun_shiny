@@ -5,43 +5,50 @@ library(dplyr)
 library(ggplot2)
 library(ggfun)
 
+
+# Layer_PersHomo data source: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
+f <- system.file("extdata", "eqData.txt", package = "ggfun")
+eq.raw <- read.delim(f, as.is=T) %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
+  select(YEAR, MONTH,DAY, EQ_MAG_MS, COUNTRY, LOCATION_NAME, LATITUDE, LONGITUDE)
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   navbarPage("ggfun",
              tabPanel("geom_image",
-               sidebarLayout(
-                 sidebarPanel(
-                   selectInput("x_variable",
-                               label = "Choose variable on x axis",
-                               choices = list("mpg" = "mpg", "cyl" = "cyl", "disp" = "disp",
-                                              "drat" = "drat", "wt" = "wt", "qsec" = "qsec",
-                                              "vs" = "vs", "am" = "am", "gear" = "gear",
-                                              "carb" = "carb"),
-                               selected = "mpg"
-                   ),
-                   selectInput("y_variable",
-                               label = "Choose variable on y axis",
-                               choices = list("mpg" = "mpg", "cyl" = "cyl", "disp" = "disp",
-                                              "drat" = "drat", "wt" = "wt", "qsec" = "qsec",
-                                              "vs" = "vs", "am" = "am", "gear" = "gear",
-                                              "carb" = "carb"),
-                               selected = "mpg"
-                   ),
-                   sliderInput("size", label = "Choose image size",
-                               min = 0.01, max = 0.3, value = 0.1)
-
-                 ),
-
-                 # Show a plot of the generated distribution
-                 mainPanel(
-                   plotOutput("geomimage"),
-                   helpText("Example code:",
-                            "ggplot(data = mtcars, aes(x = mpg, y = wt)) +
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput("x_variable",
+                                      label = "Choose variable on x axis",
+                                      choices = list("mpg" = "mpg", "cyl" = "cyl", "disp" = "disp",
+                                                     "drat" = "drat", "wt" = "wt", "qsec" = "qsec",
+                                                     "vs" = "vs", "am" = "am", "gear" = "gear",
+                                                     "carb" = "carb"),
+                                      selected = "mpg"
+                          ),
+                          selectInput("y_variable",
+                                      label = "Choose variable on y axis",
+                                      choices = list("mpg" = "mpg", "cyl" = "cyl", "disp" = "disp",
+                                                     "drat" = "drat", "wt" = "wt", "qsec" = "qsec",
+                                                     "vs" = "vs", "am" = "am", "gear" = "gear",
+                                                     "carb" = "carb"),
+                                      selected = "mpg"
+                          ),
+                          sliderInput("size", label = "Choose image size",
+                                      min = 0.01, max = 0.3, value = 0.1)
+                          
+                        ),
+                        
+                        # Show a plot of the generated distribution
+                        mainPanel(
+                          plotOutput("geomimage"),
+                          helpText("Example code:",
+                                   "ggplot(data = mtcars, aes(x = mpg, y = wt)) +
                             geom_image()")
-                 )
-               )
+                        )
+                      )
              ),
-
+             
              tabPanel("stat_star",
                       sidebarLayout(
                         sidebarPanel(
@@ -59,22 +66,20 @@ ui <- fluidPage(
                                       selected = "black"),
                           sliderInput("starsize", "Lline size",
                                       min = 0.1, max = 3, value = 0.5),
-
+                          
                           conditionalPanel("input.x_dist === 'normal'",
                                            sliderInput("xnorm_mean", "x axis mean",
-                                           min = -10, max = 10, value = 0),
+                                                       min = -10, max = 10, value = 0),
                                            sliderInput("xnorm_var", "x axis variance",
                                                        min = 0.01, max = 10, value = 1)),
-
                           conditionalPanel("input.y_dist === 'normal'",
                                            sliderInput("ynorm_mean", "y axis mean",
                                                        min = -10, max = 10, value = 0),
                                            sliderInput("ynorm_var", "y axis variance",
                                                        min = 0.01, max = 10, value = 1))
-
-
+                          
                         ),
-
+                        
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statstar"),
@@ -83,30 +88,30 @@ ui <- fluidPage(
                                    stat_star()")
                         )
                       )),
-
+             
              tabPanel("stat_arrowmap",
                       sidebarLayout(
                         sidebarPanel(
-                        textInput("saysomething", "Do you want to say something?",
-                                  value = ""),
-                        verbatimTextOutput("text"),
-                        radioButtons("arrowtype", "Arrow type",
-                                     choices = list("closed" = "closed", open = "open"),
-                                     selected = "open"),
-                        conditionalPanel("input.arrowtype === 'closed'",
-                                         selectInput("arrowfill", "Arrow head fill color",
-                                                     choices = list("black" = "black", "red" = "red", "yellow" = "yellow",
-                                                                    "green" = "green", "blue" = "blue", "pink" = "pink"),
-                                                     selected = "black")),
-                        sliderInput("arrowlength", "Arrow head length",
-                                    min = 0.05, max = 0.5, value = 0.01),
-                        sliderInput("arrowsize", "Arrow line size",
-                                    min = 0.05, max = 2, value = 0.5)
-
+                          textInput("saysomething", "Do you want to say something?",
+                                    value = ""),
+                          verbatimTextOutput("text"),
+                          radioButtons("arrowtype", "Arrow type",
+                                       choices = list("closed" = "closed", open = "open"),
+                                       selected = "open"),
+                          conditionalPanel("input.arrowtype === 'closed'",
+                                           selectInput("arrowfill", "Arrow head fill color",
+                                                       choices = list("black" = "black", "red" = "red", "yellow" = "yellow",
+                                                                      "green" = "green", "blue" = "blue", "pink" = "pink"),
+                                                       selected = "black")),
+                          sliderInput("arrowlength", "Arrow head length",
+                                      min = 0.05, max = 0.5, value = 0.01),
+                          sliderInput("arrowsize", "Arrow line size",
+                                      min = 0.05, max = 2, value = 0.5)
+                          
                         ),
-
-
-
+                        
+                        
+                        
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statarrowmap"),
@@ -115,32 +120,36 @@ ui <- fluidPage(
                                     stat_arrowmap(aes(long, lat, change, group))")
                         )
                       )),
-
+             
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
-                          sliderInput("eqDate", "Set a Time Range of observation in AD", min = -70, max = 2019, value = c(-70,2019)),
-                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", min = 0, max = 15, value = 7),
-                          sliderInput("d", "Set the Persistent Homology Radius in km", min = 0, max = 1000000, value = 500000)
-                          ),
-
+                          radioButtons("cp", "Set the Scenario", 
+                                       choices = c("Pacific Plate", "Country"), selected = "Pacific Plate"),
+                          selectInput("region", "Set the country / region", 
+                                      choices = c(unique(eq.raw$COUNTRY)), selected = c(), multiple = TRUE),
+                          sliderInput("eqDate", "Set a Time Range of observation in AD", 
+                                      min = -70, max = 2019, value = c(-70,2019)),
+                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", 
+                                      min = 0, max = 15, value = 0),
+                          sliderInput("d", "Set the Persistent Homology Radius in km", 
+                                      min = 0, max = 1000000, value = 150000),
+                          actionButton("reset_input", "Reset inputs")
+                          
+                        ),
                         # Show a plot of the generated world map with linkage
                         mainPanel(
-                          plotOutput("PersHomoMap"),
-                          helpText("Example code:",
-                                   "ggplot(worldMap) + layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = 'blue') +
-                                   geom_point()")
+                          plotOutput("PersHomoMap"), 
+                          height="auto"
                         )
                       ))
-
   )
-  # Sidebar with a slider input for number of bins
-
-
 )
 
+  # Sidebar with a slider input for number of bins
+
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output,session) {
 
   output$geomimage <- renderPlot({
     ggplot(data = mtcars, aes_string(x = input$x_variable, y = input$y_variable)) +
@@ -177,38 +186,49 @@ server <- function(input, output) {
                                   length = unit(input$arrowlength, "inches")))
   })
 
-  # data source: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
-  f <- system.file("extdata", "eqData.txt", package = "ggfun")
-  eq.raw <- read.delim(f, as.is=T) %>%
-    filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
-    filter(LONGITUDE > 70 | LONGITUDE < -45) %>%
-    mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>%
-    select(YEAR, MONTH,DAY, EQ_MAG_MS, COUNTRY, LOCATION_NAME, LATITUDE, LONGITUDE)
-
   output$PersHomoMap <- renderPlot({
-    eq <- eq.raw %>%
-      filter(EQ_MAG_MS > input$MAG) %>%
+    
+    eq <- eq.raw %>% 
+      filter(EQ_MAG_MS > input$MAG) %>% 
       filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
+    
+    # alternative
+    if (input$cp == "Pacific Plate"){
+      eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
+        filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+        mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>% 
+        filter(LONGITUDE > 110 & LONGITUDE < -45+360)
+      basemap <- map_data("world2")
+    }
+    else if(input$cp == "Country"){
+      eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
+        filter(EQ_MAG_MS > input$MAG) %>% 
+        filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+        mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
+      
+      basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>% 
+        filter(region %in% input$region)
+    }
+    
     ## plot base map
-    worldmap <- map_data("world2")
     p <- ggplot() +
-      geom_polygon(data=worldmap, aes(x=long, y=lat, group = group),fill="white", colour="#7f7f7f", size=0.5) +
-      ggtitle("Persistent Homology of Earthquake around Pacific Plate") +
+      geom_polygon(data=basemap, aes(x=long, y=lat, group = group),
+                   fill="white", colour="#7f7f7f", size=0.5) +
+      ggtitle("Earthquake around Pacific Plate") +
+      ggtitle("Persistent Homology of Historical Earthquake") +
       theme(axis.line=element_blank(),
-            axis.text.x=element_blank(),
-            axis.text.y=element_blank(),
-            axis.ticks=element_blank(),
             axis.title.x=element_blank(),
             axis.title.y=element_blank(),
             legend.position="none",
-            panel.background=element_blank(),
-            panel.border=element_blank(),
-            panel.grid.major=element_blank(),
-            panel.grid.minor=element_blank(),
-            plot.background=element_blank()); p
+            plot.background=element_blank()
+      ); p
     ## add layer_PersHomo
     fp <- p + layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue") +
       geom_point(); fp
+  }, 
+  
+  height = function() {
+    session$clientData$output_PersHomoMap_width * 2/3
   })
 }
 
