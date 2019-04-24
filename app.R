@@ -133,8 +133,7 @@ ui <- fluidPage(
                           sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", 
                                       min = 0, max = 15, value = 0),
                           sliderInput("d", "Set the Persistent Homology Radius in km", 
-                                      min = 0, max = 1000000, value = 150000),
-                          actionButton("reset_input", "Reset inputs")
+                                      min = 0, max = 1000000, value = 150000)
                           
                         ),
                         # Show a plot of the generated world map with linkage
