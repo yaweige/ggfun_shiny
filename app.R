@@ -192,7 +192,7 @@ server <- function(input, output) {
     worldmap <- map_data("world2")
     p <- ggplot() +
       geom_polygon(data=worldmap, aes(x=long, y=lat, group = group),fill="white", colour="#7f7f7f", size=0.5) +
-      ggtitle("Earthquake around Pacific Plate") +
+      ggtitle("Persistent Homology of Earthquake around Pacific Plate") +
       theme(axis.line=element_blank(),
             axis.text.x=element_blank(),
             axis.text.y=element_blank(),
