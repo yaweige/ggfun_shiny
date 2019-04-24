@@ -120,7 +120,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           sliderInput("eqDate", "Set a Time Range of observation in AD", min = -70, max = 2019, value = c(-70,2019)),
-                          sliderInput("MAG", "Set minimum Magnitude of earthquake in M", min = 0, max = 15, value = 0),
+                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", min = 0, max = 15, value = 0),
                           sliderInput("d", "Set the Persistent Homology Radius in km", min = 0, max = 1000000, value = 150000)
                           ),
                         
@@ -208,7 +208,8 @@ server <- function(input, output) {
     ## add layer_PersHomo
     fp <- p + layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue") +
       geom_point(); fp
-  })}
+  })
+}
 
 # Run the application 
 shinyApp(ui = ui, server = server)
