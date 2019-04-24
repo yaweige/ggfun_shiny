@@ -177,6 +177,7 @@ server <- function(input, output) {
                                   length = unit(input$arrowlength, "inches")))
   })
 
+  # data source: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
   f <- system.file("extdata", "eqData.txt", package = "ggfun")
   eq.raw <- read.delim(f, as.is=T) %>%
     filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
