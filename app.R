@@ -120,8 +120,8 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           sliderInput("eqDate", "Set a Time Range of observation in AD", min = -70, max = 2019, value = c(-70,2019)),
-                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", min = 0, max = 15, value = 0),
-                          sliderInput("d", "Set the Persistent Homology Radius in km", min = 0, max = 1000000, value = 150000)
+                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", min = 0, max = 15, value = 7),
+                          sliderInput("d", "Set the Persistent Homology Radius in km", min = 0, max = 1000000, value = 500000)
                           ),
 
                         # Show a plot of the generated world map with linkage
@@ -181,7 +181,7 @@ server <- function(input, output) {
   f <- system.file("extdata", "eqData.txt", package = "ggfun")
   eq.raw <- read.delim(f, as.is=T) %>%
     filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
-    filter(LONGITUDE > 110 | LONGITUDE < -45) %>%
+    filter(LONGITUDE > 70 | LONGITUDE < -45) %>%
     mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>%
     select(YEAR, MONTH,DAY, EQ_MAG_MS, COUNTRY, LOCATION_NAME, LATITUDE, LONGITUDE)
 
