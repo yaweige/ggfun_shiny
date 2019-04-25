@@ -124,19 +124,22 @@ ui <- fluidPage(
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
+                          h3("Mode Setup"),
                           radioButtons("maptype", "Set the type of map", 
                                        choices = c("Pacific-centred", "Peters projection" ), selected = "Pacific-centred"),
                           radioButtons("cp", "Set the Scenario", 
                                        choices = c("Pacific Plate", "Country"), selected = "Pacific Plate"),
                           selectInput("region", "Select the country / region", 
                                       choices = c(unique(eq.raw$COUNTRY)), selected = c(), multiple = TRUE),
+                          br(),
+                          h3("Investigation Control"),
                           sliderInput("eqDate", "Set a Time Range of observation in AD", 
                                       min = -70, max = 2019, value = c(-70,2019)),
                           sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", 
                                       min = 0, max = 15, value = 0),
                           sliderInput("d", "Set the Persistent Homology Radius in km", 
                                       min = 0, max = 1000000, value = 150000)
-                          ),
+                        ),
                         # Show a plot of the generated world map with linkage
                         mainPanel(
                           plotOutput("PersHomoMap"), 
