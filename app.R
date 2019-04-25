@@ -239,7 +239,7 @@ server <- function(input, output,session) {
       ); p
     ## add layer_PersHomo
     fp <- p + geom_point(data= eq, mapping= aes(x=LONGITUDE, y=LATITUDE, size = EQ_MAG_MS),colour = "red" , alpha =.05) +
-      layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue"); fp
+      layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue", alpha =.07); fp
   }, 
   
   height = function() {
