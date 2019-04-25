@@ -124,9 +124,11 @@ ui <- fluidPage(
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
+                          radioButtons("maptype", "Set the type of map", 
+                                       choices = c("Pacific-centred", "Peters projection" ), selected = "Pacific-centred"),
                           radioButtons("cp", "Set the Scenario", 
                                        choices = c("Pacific Plate", "Country"), selected = "Pacific Plate"),
-                          selectInput("region", "Set the country / region", 
+                          selectInput("region", "Select the country / region", 
                                       choices = c(unique(eq.raw$COUNTRY)), selected = c(), multiple = TRUE),
                           sliderInput("eqDate", "Set a Time Range of observation in AD", 
                                       min = -70, max = 2019, value = c(-70,2019)),
@@ -134,8 +136,7 @@ ui <- fluidPage(
                                       min = 0, max = 15, value = 0),
                           sliderInput("d", "Set the Persistent Homology Radius in km", 
                                       min = 0, max = 1000000, value = 150000)
-                          
-                        ),
+                          ),
                         # Show a plot of the generated world map with linkage
                         mainPanel(
                           plotOutput("PersHomoMap"), 
@@ -186,27 +187,39 @@ server <- function(input, output,session) {
   })
 
   output$PersHomoMap <- renderPlot({
-    
-    eq <- eq.raw %>% 
-      filter(EQ_MAG_MS > input$MAG) %>% 
-      filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
-    
-    # alternative
-    if (input$cp == "Pacific Plate"){
-      eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
-        filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
-        mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>% 
-        filter(LONGITUDE > 110 & LONGITUDE < -45+360)
-      basemap <- map_data("world2")
-    }
-    else if(input$cp == "Country"){
-      eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
-        filter(EQ_MAG_MS > input$MAG) %>% 
-        filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
-        mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
-      
-      basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>% 
-        filter(region %in% input$region)
+    # data tidying
+    if (input$maptype =="Peters projection"){
+      if (input$cp == "Pacific Plate"){
+        eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+          filter(LONGITUDE > 110 | LONGITUDE < -45)
+        basemap <- map_data("world")
+      }
+      else if(input$cp == "Country"){
+        eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
+          filter(EQ_MAG_MS > input$MAG) %>% 
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
+        basemap <- map_data("world")%>% mutate(region = toupper(region)) %>% 
+          filter(region %in% input$region)
+      }
+    } 
+    else if (input$maptype =="Pacific-centred"){
+      if (input$cp == "Pacific Plate"){
+        eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+          mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>% 
+          filter(LONGITUDE > 110 & LONGITUDE < -45+360)
+        basemap <- map_data("world2")
+      }
+      else if(input$cp == "Country"){
+        eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
+          filter(EQ_MAG_MS > input$MAG) %>% 
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+          mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
+        
+        basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>% 
+          filter(region %in% input$region)
+      }
     }
     
     ## plot base map
