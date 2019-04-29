@@ -190,14 +190,14 @@ server <- function(input, output,session) {
     if (input$maptype =="Peters projection"){
       if (input$cp == "Pacific Plate"){
         eq <- eqRaw %>% filter(EQ_MAG_MS > input$MAG) %>%
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
+          filter(YEAR > input$eqDate[1] & YEAR < input$eqDate[2]) %>%
           filter(LONGITUDE > 110 | LONGITUDE < -45)
         basemap <- map_data("world")
       }
       else if(input$cp == "Country"){
         eq <- eqRaw %>% filter(COUNTRY %in% input$region) %>%
           filter(EQ_MAG_MS > input$MAG) %>%
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
+          filter(YEAR > input$eqDate[1] & YEAR < input$eqDate[2])
         basemap <- map_data("world")%>% mutate(region = toupper(region)) %>%
           filter(region %in% input$region)
       }
@@ -205,7 +205,7 @@ server <- function(input, output,session) {
     else if (input$maptype =="Pacific-centred"){
       if (input$cp == "Pacific Plate"){
         eq <- eqRaw %>% filter(EQ_MAG_MS > input$MAG) %>%
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
+          filter(YEAR > input$eqDate[1] & YEAR < input$eqDate[2]) %>%
           mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>%
           filter(LONGITUDE > 110 & LONGITUDE < -45+360)
         basemap <- map_data("world2")
@@ -213,7 +213,7 @@ server <- function(input, output,session) {
       else if(input$cp == "Country"){
         eq <- eqRaw %>% filter(COUNTRY %in% input$region) %>%
           filter(EQ_MAG_MS > input$MAG) %>%
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
+          filter(YEAR > input$eqDate[1] & YEAR < input$eqDate[2]) %>%
           mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
 
         basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>%
