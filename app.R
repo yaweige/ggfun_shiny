@@ -7,11 +7,7 @@ library(ggfun)
 
 
 # Layer_PersHomo data source: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
-f <- system.file("extdata", "eqData.txt", package = "ggfun")
-eq.raw <- read.delim(f, as.is=T) %>%
-  filter(!is.na(LONGITUDE) & !is.na(LATITUDE)) %>%
-  select(YEAR, MONTH,DAY, EQ_MAG_MS, COUNTRY, LOCATION_NAME, LATITUDE, LONGITUDE)
-
+data(eqRaw)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   navbarPage("ggfun",
@@ -36,9 +32,9 @@ ui <- fluidPage(
                           ),
                           sliderInput("size", label = "Choose image size",
                                       min = 0.01, max = 0.3, value = 0.1)
-                          
+
                         ),
-                        
+
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("geomimage"),
@@ -48,7 +44,7 @@ ui <- fluidPage(
                         )
                       )
              ),
-             
+
              tabPanel("stat_star",
                       sidebarLayout(
                         sidebarPanel(
@@ -66,7 +62,7 @@ ui <- fluidPage(
                                       selected = "black"),
                           sliderInput("starsize", "Lline size",
                                       min = 0.1, max = 3, value = 0.5),
-                          
+
                           conditionalPanel("input.x_dist === 'normal'",
                                            sliderInput("xnorm_mean", "x axis mean",
                                                        min = -10, max = 10, value = 0),
@@ -77,9 +73,9 @@ ui <- fluidPage(
                                                        min = -10, max = 10, value = 0),
                                            sliderInput("ynorm_var", "y axis variance",
                                                        min = 0.01, max = 10, value = 1))
-                          
+
                         ),
-                        
+
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statstar"),
@@ -88,7 +84,7 @@ ui <- fluidPage(
                                    stat_star()")
                         )
                       )),
-             
+
              tabPanel("stat_arrowmap",
                       sidebarLayout(
                         sidebarPanel(
@@ -107,11 +103,11 @@ ui <- fluidPage(
                                       min = 0.05, max = 0.5, value = 0.01),
                           sliderInput("arrowsize", "Arrow line size",
                                       min = 0.05, max = 2, value = 0.5)
-                          
+
                         ),
-                        
-                        
-                        
+
+
+
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statarrowmap"),
@@ -120,29 +116,29 @@ ui <- fluidPage(
                                     stat_arrowmap(aes(long, lat, change, group))")
                         )
                       )),
-             
+
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
                           h3("Mode Setup"),
-                          radioButtons("maptype", "Set the type of map", 
+                          radioButtons("maptype", "Set the type of map",
                                        choices = c("Pacific-centred", "Peters projection" ), selected = "Pacific-centred"),
-                          radioButtons("cp", "Set the Scenario", 
+                          radioButtons("cp", "Set the Scenario",
                                        choices = c("Pacific Plate", "Country"), selected = "Pacific Plate"),
-                          selectInput("region", "Select the country / region", 
-                                      choices = c(unique(eq.raw$COUNTRY)), selected = c(), multiple = TRUE),
+                          selectInput("region", "Select the country / region",
+                                      choices = c(unique(eqRaw$COUNTRY)), selected = c(), multiple = TRUE),
                           br(),
                           h3("Investigation Control"),
-                          sliderInput("eqDate", "Set a Time Range of observation in AD", 
+                          sliderInput("eqDate", "Set a Time Range of observation in AD",
                                       min = -70, max = 2019, value = c(-70,2019)),
-                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms", 
+                          sliderInput("MAG", "Set minimum Magnitude of earthquake in Ms",
                                       min = 0, max = 15, value = 0),
-                          sliderInput("d", "Set the Persistent Homology Radius in km", 
+                          sliderInput("d", "Set the Persistent Homology Radius in km",
                                       min = 0, max = 1000000, value = 150000)
                         ),
                         # Show a plot of the generated world map with linkage
                         mainPanel(
-                          plotOutput("PersHomoMap"), 
+                          plotOutput("PersHomoMap"),
                           height="auto"
                         )
                       ))
@@ -193,38 +189,38 @@ server <- function(input, output,session) {
     # data tidying
     if (input$maptype =="Peters projection"){
       if (input$cp == "Pacific Plate"){
-        eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+        eq <- eqRaw %>% filter(EQ_MAG_MS > input$MAG) %>%
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
           filter(LONGITUDE > 110 | LONGITUDE < -45)
         basemap <- map_data("world")
       }
       else if(input$cp == "Country"){
-        eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
-          filter(EQ_MAG_MS > input$MAG) %>% 
+        eq <- eqRaw %>% filter(COUNTRY %in% input$region) %>%
+          filter(EQ_MAG_MS > input$MAG) %>%
           filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2])
-        basemap <- map_data("world")%>% mutate(region = toupper(region)) %>% 
+        basemap <- map_data("world")%>% mutate(region = toupper(region)) %>%
           filter(region %in% input$region)
       }
-    } 
+    }
     else if (input$maptype =="Pacific-centred"){
       if (input$cp == "Pacific Plate"){
-        eq <- eq.raw %>% filter(EQ_MAG_MS > input$MAG) %>% 
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
-          mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>% 
+        eq <- eqRaw %>% filter(EQ_MAG_MS > input$MAG) %>%
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
+          mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE)) %>%
           filter(LONGITUDE > 110 & LONGITUDE < -45+360)
         basemap <- map_data("world2")
       }
       else if(input$cp == "Country"){
-        eq <- eq.raw %>% filter(COUNTRY %in% input$region) %>% 
-          filter(EQ_MAG_MS > input$MAG) %>% 
-          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>% 
+        eq <- eqRaw %>% filter(COUNTRY %in% input$region) %>%
+          filter(EQ_MAG_MS > input$MAG) %>%
+          filter(YEAR > input$eqDate[1] | YEAR < input$eqDate[2]) %>%
           mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
-        
-        basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>% 
+
+        basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>%
           filter(region %in% input$region)
       }
     }
-    
+
     ## plot base map
     p <- ggplot() +
       geom_polygon(data=basemap, aes(x=long, y=lat, group = group),
@@ -240,8 +236,8 @@ server <- function(input, output,session) {
     ## add layer_PersHomo
     fp <- p + geom_point(data= eq, mapping= aes(x=LONGITUDE, y=LATITUDE, size = EQ_MAG_MS),colour = "red" , alpha =.05) +
       layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue", alpha =.07); fp
-  }, 
-  
+  },
+
   height = function() {
     session$clientData$output_PersHomoMap_width * 2/3
   })
