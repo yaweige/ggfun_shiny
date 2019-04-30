@@ -8,6 +8,11 @@ library(ggfun)
 
 # Layer_PersHomo data source: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
 data(eqRaw)
+
+# geom_image imag input
+p <- system.file("extdata", "images.jpg", package = "ggfun")
+img <- magick::image_read(p)
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   navbarPage("ggfun",
@@ -32,9 +37,9 @@ ui <- fluidPage(
                           ),
                           sliderInput("size", label = "Choose image size",
                                       min = 0.01, max = 0.3, value = 0.1)
-
+                          
                         ),
-
+                        
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("geomimage"),
@@ -44,7 +49,7 @@ ui <- fluidPage(
                         )
                       )
              ),
-
+             
              tabPanel("stat_star",
                       sidebarLayout(
                         sidebarPanel(
@@ -62,7 +67,7 @@ ui <- fluidPage(
                                       selected = "black"),
                           sliderInput("starsize", "Lline size",
                                       min = 0.1, max = 3, value = 0.5),
-
+                          
                           conditionalPanel("input.x_dist === 'normal'",
                                            sliderInput("xnorm_mean", "x axis mean",
                                                        min = -10, max = 10, value = 0),
@@ -73,9 +78,9 @@ ui <- fluidPage(
                                                        min = -10, max = 10, value = 0),
                                            sliderInput("ynorm_var", "y axis variance",
                                                        min = 0.01, max = 10, value = 1))
-
+                          
                         ),
-
+                        
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statstar"),
@@ -84,7 +89,7 @@ ui <- fluidPage(
                                    stat_star()")
                         )
                       )),
-
+             
              tabPanel("stat_arrowmap",
                       sidebarLayout(
                         sidebarPanel(
@@ -103,11 +108,11 @@ ui <- fluidPage(
                                       min = 0.05, max = 0.5, value = 0.01),
                           sliderInput("arrowsize", "Arrow line size",
                                       min = 0.05, max = 2, value = 0.5)
-
+                          
                         ),
-
-
-
+                        
+                        
+                        
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statarrowmap"),
@@ -116,7 +121,7 @@ ui <- fluidPage(
                                     stat_arrowmap(aes(long, lat, change, group))")
                         )
                       )),
-
+             
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
@@ -145,36 +150,36 @@ ui <- fluidPage(
   )
 )
 
-  # Sidebar with a slider input for number of bins
+# Sidebar with a slider input for number of bins
 
 # Define server logic required to draw a histogram
 server <- function(input, output,session) {
-
+  
   output$geomimage <- renderPlot({
     ggplot(data = mtcars, aes_string(x = input$x_variable, y = input$y_variable)) +
-      geom_image(size = input$size) +
+      geom_image(size = input$size, img = img) +
       ggtitle("mtcars data set")
   })
-
+  
   output$statstar <- renderPlot({
     if (input$x_dist == "normal") x <- rnorm(n = input$datasize, mean = input$xnorm_mean, sd = input$xnorm_var)
     if (input$x_dist == "f") x <- rf(n = input$datasize, df1 = 5, df2 = 2)
     if (input$y_dist == "normal") y <- rnorm(n = input$datasize, mean = input$ynorm_mean, sd = input$ynorm_var)
     if (input$y_dist == "f") y <- rf(n = input$datasize, df1 = 5, df2 = 2)
-
+    
     data <- data.frame(x = x, y = y)
     ggplot(data = data, aes(x = x, y = y)) +
       geom_point() +
       stat_star(size = input$starsize, color = input$starcolor)
   })
-
+  
   usmap <- map_data("state")
   output$statarrowmap <- renderPlot({
     madedata_standard <- data.frame(region = unique(usmap$region), change = (runif(49)-0.5)*2,
                                     stringsAsFactors = F)
     madedata_standard <- madedata_standard %>%
       left_join(usmap,by = "region")
-
+    
     madedata_standard %>%
       ggplot() +
       geom_path(aes(x = long, y = lat, group = group)) +
@@ -184,7 +189,7 @@ server <- function(input, output,session) {
                     arrow = arrow(type = input$arrowtype,
                                   length = unit(input$arrowlength, "inches")))
   })
-
+  
   output$PersHomoMap <- renderPlot({
     # data tidying
     if (input$maptype =="Peters projection"){
@@ -215,12 +220,12 @@ server <- function(input, output,session) {
           filter(EQ_MAG_MS > input$MAG) %>%
           filter(YEAR > input$eqDate[1] & YEAR < input$eqDate[2]) %>%
           mutate(LONGITUDE = ifelse(LONGITUDE < 0, LONGITUDE + 360, LONGITUDE))
-
+        
         basemap <- map_data("world2")%>% mutate(region = toupper(region)) %>%
           filter(region %in% input$region)
       }
     }
-
+    
     ## plot base map
     p <- ggplot() +
       geom_polygon(data=basemap, aes(x=long, y=lat, group = group),
@@ -237,7 +242,7 @@ server <- function(input, output,session) {
     fp <- p + geom_point(data= eq, mapping= aes(x=LONGITUDE, y=LATITUDE, size = EQ_MAG_MS),colour = "red" , alpha =.05) +
       layer_PersHomo(data= eq, mapping = aes(x=LONGITUDE, y=LATITUDE), d=input$d, colour = "blue", alpha =.07); fp
   },
-
+  
   height = function() {
     session$clientData$output_PersHomoMap_width * 2/3
   })
