@@ -43,7 +43,7 @@ ui <- fluidPage(
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("geomimage"),
-                          helpText("Example code:",
+                          helpText("Example Code:",
                                    "ggplot(data = mtcars, aes(x = mpg, y = wt)) +
                             geom_image()")
                         )
@@ -84,7 +84,7 @@ ui <- fluidPage(
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statstar"),
-                          helpText("Example code:",
+                          helpText("Example Code:",
                                    "ggplot(data, aes(x, y)) + geom_point() +
                                    stat_star()")
                         )
@@ -116,7 +116,7 @@ ui <- fluidPage(
                         # Show a plot of the generated distribution
                         mainPanel(
                           plotOutput("statarrowmap"),
-                          helpText("Example code:",
+                          helpText("Example Code:",
                                    "ggplot(certain_data) + geom_path(aes(long, lat, group)) +
                                     stat_arrowmap(aes(long, lat, change, group))")
                         )
@@ -152,18 +152,21 @@ ui <- fluidPage(
              tabPanel("stat_ars",
                       sidebarLayout(
                         sidebarPanel(
-                          sliderInput("a", "a:", 1, min = 1, max = 100),
+                          sliderInput("a", "a:", 1, min = -50, max = 50),
                           
                           
-                          sliderInput("b", "b:", 1, min = 1, max = 100),
+                          sliderInput("b", "b:", 1, min = -50, max = 50),
                           
                           
-                          sliderInput("n", "n:", 1, min = 1, max = 100)
+                          sliderInput("n", "n:", 1, min = 1, max = 50)
                         ),
                         
                         mainPanel(
                           plotOutput("statars"),
-                          height = "auto"
+                          height = "auto",
+                          helpText("Example Code:",
+                                   "ggplot() +
+                                   stat_ars(aes(a = a, b = b, n = n)")
                         )
                         
                       ))
