@@ -152,10 +152,13 @@ ui <- fluidPage(
              tabPanel("stat_ars",
                       sidebarLayout(
                         sidebarPanel(
-                          sliderInput("a", "a:", 1, min = -50, max = 50),
+                          
+                          helpText("Draw Archimedean spiral:"),
+                          
+                          sliderInput("a", "Rotating the Spiral a:", 1, min = -50, max = 50),
                           
                           
-                          sliderInput("b", "b:", 1, min = -50, max = 50),
+                          sliderInput("b", "Distance Control b:", 1, min = -50, max = 50),
                           
                           
                           sliderInput("n", "n:", 1, min = 1, max = 50)
