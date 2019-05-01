@@ -122,6 +122,7 @@ ui <- fluidPage(
                         )
                       )),
              
+             
              tabPanel("layer_PersHomo",
                       sidebarLayout(
                         sidebarPanel(
@@ -146,7 +147,29 @@ ui <- fluidPage(
                           plotOutput("PersHomoMap"),
                           height="auto"
                         )
+                      )),
+             
+             tabPanel("stat_ars",
+                      sidebarLayout(
+                        sidebarPanel(
+                          sliderInput("a", "a:", 1, min = 1, max = 100),
+                          
+                          
+                          sliderInput("b", "b:", 1, min = 1, max = 100),
+                          
+                          
+                          sliderInput("n", "n:", 1, min = 1, max = 100)
+                        ),
+                        
+                        mainPanel(
+                          plotOutput("statars"),
+                          height = "auto"
+                        )
+                        
                       ))
+             
+
+             
   )
 )
 
@@ -155,6 +178,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output,session) {
   
+  # plot geom_image
   output$geomimage <- renderPlot({
     ggplot(data = mtcars, aes_string(x = input$x_variable, y = input$y_variable)) +
       geom_image(size = input$size, img = img) +
@@ -246,6 +270,15 @@ server <- function(input, output,session) {
   height = function() {
     session$clientData$output_PersHomoMap_width * 2/3
   })
+  
+  output$statars <- renderPlot({
+    ggplot() + 
+      stat_ars(aes(a = input$a, b = input$b, n = input$n), col = "coral")
+  })
+  
+
+  
+
 }
 
 # Run the application
